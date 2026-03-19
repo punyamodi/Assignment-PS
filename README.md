@@ -4,9 +4,12 @@ Integration service for syncing accounting data and exposing receivable insights
 
 ## GitHub Repository
 
-Add your repository URL here after push:
+https://github.com/punyamodi/Assignment-PS
 
-`https://github.com/<your-username>/paysaathi`
+## Time Expectation
+
+Most candidates spend 36 to 48 hours on this task.
+I focused on showing clear system thinking and integration decisions instead of trying to build a perfect product.
 
 ## How to Run
 
@@ -54,6 +57,20 @@ API docs:
 3. Idempotent sync with update or insert logic.
 4. Separate mock API to simulate external integration.
 5. Service layers to keep route handlers thin.
+
+## System and Integration Logic
+
+I designed this as two services.
+The mock accounting API acts like an external dependency.
+The main service pulls customers, invoices, and payments from that external source and stores them in local tables.
+
+I kept sync idempotent so repeated sync calls do not duplicate records.
+I sync in a fixed order.
+Customers first, then invoices, then payments.
+This keeps data relationships valid.
+
+After data is synced, all insight endpoints read from local storage.
+This avoids repeated external calls and keeps insight responses stable and fast.
 
 ## Assumptions
 
