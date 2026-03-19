@@ -12,6 +12,10 @@ env/
 .vscode/
 .idea/
 
+# Test and temp artifacts
+.pytest_cache/
+.tmp-edge/
+
 # Database
 *.db
 
