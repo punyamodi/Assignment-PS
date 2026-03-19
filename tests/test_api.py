@@ -1,6 +1,3 @@
-"""
-Tests for API endpoints.
-"""
 from datetime import date, timedelta
 
 from app.models.models import Customer, Invoice, Payment

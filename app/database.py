@@ -1,6 +1,3 @@
-"""
-Database engine and session configuration.
-"""
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
@@ -20,7 +17,6 @@ class Base(DeclarativeBase):
 
 
 def get_db():
-    """FastAPI dependency that yields a database session."""
     db = SessionLocal()
     try:
         yield db
@@ -29,5 +25,4 @@ def get_db():
 
 
 def init_db():
-    """Create all tables."""
     Base.metadata.create_all(bind=engine)

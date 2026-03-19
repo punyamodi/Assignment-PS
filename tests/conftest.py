@@ -1,6 +1,3 @@
-"""
-Pytest configuration and shared fixtures.
-"""
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -17,7 +14,6 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 @pytest.fixture(scope="function")
 def db_session():
-    """Create a clean database session for each test."""
     Base.metadata.create_all(bind=engine)
     session = TestingSessionLocal()
     try:
@@ -29,7 +25,6 @@ def db_session():
 
 @pytest.fixture(scope="function")
 def client(db_session):
-    """FastAPI test client with overridden DB dependency."""
     from fastapi.testclient import TestClient
 
     def override_get_db():

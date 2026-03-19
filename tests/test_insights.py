@@ -1,7 +1,4 @@
-"""
-Tests for the insight service — outstanding balances, overdue invoices,
-customer credit summaries, and aging reports.
-"""
+
 from datetime import date, timedelta
 
 from app.models.models import Customer, Invoice, Payment

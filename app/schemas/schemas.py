@@ -1,14 +1,6 @@
-"""
-Pydantic schemas for API request/response models.
-"""
 from datetime import date, datetime
 from typing import Optional, List
-from pydantic import BaseModel
-
-
-# ---------------------------------------------------------------------------
-# Customer Schemas
-# ---------------------------------------------------------------------------
+from pydantic import BaseModel, ConfigDict
 
 class CustomerBase(BaseModel):
     id: str
@@ -19,15 +11,8 @@ class CustomerBase(BaseModel):
 
 
 class CustomerResponse(CustomerBase):
+    model_config = ConfigDict(from_attributes=True)
     created_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True
-
-
-# ---------------------------------------------------------------------------
-# Invoice Schemas
-# ---------------------------------------------------------------------------
 
 class InvoiceBase(BaseModel):
     id: str
@@ -40,15 +25,8 @@ class InvoiceBase(BaseModel):
 
 
 class InvoiceResponse(InvoiceBase):
+    model_config = ConfigDict(from_attributes=True)
     created_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True
-
-
-# ---------------------------------------------------------------------------
-# Payment Schemas
-# ---------------------------------------------------------------------------
 
 class PaymentBase(BaseModel):
     id: str
@@ -60,15 +38,8 @@ class PaymentBase(BaseModel):
 
 
 class PaymentResponse(PaymentBase):
+    model_config = ConfigDict(from_attributes=True)
     created_at: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True
-
-
-# ---------------------------------------------------------------------------
-# Insight Schemas
-# ---------------------------------------------------------------------------
 
 class OutstandingBalance(BaseModel):
     customer_id: str

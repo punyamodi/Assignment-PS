@@ -1,10 +1,5 @@
-"""
-PaySaathi Integration Service — Main FastAPI Application.
-
-Integrates with an external accounting system, stores data locally,
-and exposes financial insight APIs.
-"""
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
@@ -15,6 +10,13 @@ from app.api.data import router as data_router
 
 logging.basicConfig(level=logging.INFO)
 
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    init_db()
+    yield
+
+
 app = FastAPI(
     title="PaySaathi Integration Service",
     description=(
@@ -23,13 +25,8 @@ app = FastAPI(
         "balances, overdue invoices, credit summaries, and aging reports."
     ),
     version="1.0.0",
+    lifespan=lifespan,
 )
-
-
-@app.on_event("startup")
-def on_startup():
-    """Initialize the database on application startup."""
-    init_db()
 
 
 app.include_router(sync_router)
@@ -44,7 +41,7 @@ def root():
         "version": "1.0.0",
         "docs": "/docs",
         "endpoints": {
-            "sync": "POST /sync/ — Trigger data sync from external system",
+            "sync": "POST /sync/ - Trigger data sync from external system",
             "insights": {
                 "outstanding_balances": "GET /insights/outstanding-balances",
                 "overdue_invoices": "GET /insights/overdue-invoices",

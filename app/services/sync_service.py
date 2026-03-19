@@ -1,8 +1,6 @@
-"""
-Sync service — fetches data from the external accounting API and upserts into local DB.
-"""
+
 import logging
-from datetime import datetime, date
+from datetime import datetime, date, UTC
 
 import httpx
 from sqlalchemy.orm import Session
@@ -14,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 
 class SyncService:
-    """Handles data synchronization from external accounting system."""
 
     def __init__(self, db: Session):
         self.db = db
@@ -22,14 +19,13 @@ class SyncService:
         self.timeout = settings.SYNC_TIMEOUT_SECONDS
 
     async def sync_all(self) -> list[dict]:
-        """Run full sync for customers, invoices, and payments (in order)."""
         results = []
         for entity, sync_fn in [
             ("customers", self._sync_customers),
             ("invoices", self._sync_invoices),
             ("payments", self._sync_payments),
         ]:
-            log = SyncLog(entity_type=entity, status="started", started_at=datetime.utcnow())
+            log = SyncLog(entity_type=entity, status="started", started_at=datetime.now(UTC))
             self.db.add(log)
             self.db.commit()
 
@@ -37,12 +33,12 @@ class SyncService:
                 count = await sync_fn()
                 log.status = "completed"
                 log.records_synced = count
-                log.completed_at = datetime.utcnow()
+                log.completed_at = datetime.now(UTC)
                 results.append({"entity": entity, "records_synced": count, "status": "completed"})
             except Exception as e:
                 log.status = "failed"
                 log.error_message = str(e)
-                log.completed_at = datetime.utcnow()
+                log.completed_at = datetime.now(UTC)
                 results.append({"entity": entity, "records_synced": 0, "status": "failed", "message": str(e)})
                 logger.error(f"Sync failed for {entity}: {e}")
             finally:
@@ -51,7 +47,6 @@ class SyncService:
         return results
 
     async def _fetch_json(self, endpoint: str) -> dict:
-        """Fetch JSON from the external API with timeout and error handling."""
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             response = await client.get(f"{self.base_url}{endpoint}")
             response.raise_for_status()
@@ -69,7 +64,7 @@ class SyncService:
                 existing.email = c.get("email")
                 existing.phone = c.get("phone")
                 existing.address = c.get("address")
-                existing.updated_at = datetime.utcnow()
+                existing.updated_at = datetime.now(UTC)
             else:
                 self.db.add(Customer(
                     id=c["id"],
@@ -100,7 +95,7 @@ class SyncService:
                 existing.due_date = due_date
                 existing.status = inv["status"]
                 existing.issued_date = issued_date
-                existing.updated_at = datetime.utcnow()
+                existing.updated_at = datetime.now(UTC)
             else:
                 self.db.add(Invoice(
                     id=inv["id"],

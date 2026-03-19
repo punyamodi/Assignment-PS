@@ -1,10 +1,7 @@
-"""
-Insight service — computes financial insights from locally stored data.
-"""
-from datetime import date, datetime
+
+from datetime import date, datetime, UTC
 from typing import Optional
 
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.models import Customer, Invoice, Payment
@@ -19,13 +16,11 @@ from app.schemas.schemas import (
 
 
 class InsightService:
-    """Computes credit insights from the local data store."""
 
     def __init__(self, db: Session):
         self.db = db
 
     def get_outstanding_balances(self) -> list[OutstandingBalance]:
-        """Per-customer outstanding balance = total invoiced - total paid."""
         customers = self.db.query(Customer).all()
         results = []
 
@@ -53,12 +48,11 @@ class InsightService:
                 invoice_count=len(invoices),
             ))
 
-        # Sort by outstanding balance descending
+        # Sort by outstanding descending
         results.sort(key=lambda x: x.outstanding_balance, reverse=True)
         return results
 
     def get_overdue_invoices(self) -> list[OverdueInvoice]:
-        """All invoices past due date that are not fully paid."""
         today = date.today()
         invoices = (
             self.db.query(Invoice)
@@ -88,12 +82,10 @@ class InsightService:
                 days_overdue=days_overdue,
             ))
 
-        # Sort by days overdue descending
         results.sort(key=lambda x: x.days_overdue, reverse=True)
         return results
 
     def get_customer_credit_summary(self, customer_id: str) -> Optional[CustomerCreditSummary]:
-        """Full credit profile for a single customer."""
         customer = self.db.query(Customer).filter(Customer.id == customer_id).first()
         if not customer:
             return None
@@ -123,7 +115,6 @@ class InsightService:
                     reference_number=p.reference_number,
                     created_at=p.created_at,
                 ))
-                # Calculate days to pay from issued date
                 if inv.issued_date:
                     days = (p.payment_date - inv.issued_date).days
                     if days >= 0:
@@ -140,7 +131,6 @@ class InsightService:
         outstanding = total_invoiced - total_paid
         avg_days = round(sum(days_to_pay_list) / len(days_to_pay_list), 1) if days_to_pay_list else None
 
-        # Risk rating based on overdue ratio
         if total_invoiced == 0:
             risk = "low"
         else:
@@ -168,7 +158,6 @@ class InsightService:
         )
 
     def get_aging_report(self) -> AgingReport:
-        """Receivables aging buckets: 0-30, 31-60, 61-90, 90+ days."""
         today = date.today()
         invoices = (
             self.db.query(Invoice)
@@ -195,7 +184,7 @@ class InsightService:
             days_outstanding = (today - inv.due_date).days if inv.due_date <= today else 0
 
             if days_outstanding <= 0:
-                # Not yet due — put in 0-30 bucket
+
                 bucket_key = "0-30 days"
             elif days_outstanding <= 30:
                 bucket_key = "0-30 days"
@@ -221,7 +210,7 @@ class InsightService:
         ]
 
         return AgingReport(
-            generated_at=datetime.utcnow(),
+            generated_at=datetime.now(UTC),
             total_receivables=round(total_receivables, 2),
             buckets=bucket_list,
         )

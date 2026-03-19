@@ -1,18 +1,7 @@
-"""
-Mock External Accounting System API.
-
-This simulates the external accounting system with realistic seed data.
-Run separately on port 8001: uvicorn app.external.mock_api:app --port 8001
-"""
 from datetime import date, timedelta
 from fastapi import FastAPI
-import random
 
 app = FastAPI(title="Mock External Accounting System", version="1.0.0")
-
-# ---------------------------------------------------------------------------
-# Seed Data
-# ---------------------------------------------------------------------------
 
 CUSTOMERS = [
     {
@@ -102,7 +91,7 @@ INVOICES = [
         "status": "pending",
         "issued_date": (today - timedelta(days=15)).isoformat(),
     },
-    # CUST-003: all paid — good customer
+    # CUST-003: all paid, good customer
     {
         "id": "INV-006",
         "customer_id": "CUST-003",
@@ -232,13 +221,11 @@ PAYMENTS = [
 
 @app.get("/customers", tags=["External"])
 def list_customers():
-    """Returns all customers from the external accounting system."""
     return {"data": CUSTOMERS, "total": len(CUSTOMERS)}
 
 
 @app.get("/customers/{customer_id}", tags=["External"])
 def get_customer(customer_id: str):
-    """Returns a single customer by ID."""
     for c in CUSTOMERS:
         if c["id"] == customer_id:
             return {"data": c}
@@ -247,13 +234,11 @@ def get_customer(customer_id: str):
 
 @app.get("/invoices", tags=["External"])
 def list_invoices():
-    """Returns all invoices from the external accounting system."""
     return {"data": INVOICES, "total": len(INVOICES)}
 
 
 @app.get("/invoices/{invoice_id}", tags=["External"])
 def get_invoice(invoice_id: str):
-    """Returns a single invoice by ID."""
     for inv in INVOICES:
         if inv["id"] == invoice_id:
             return {"data": inv}
@@ -262,13 +247,11 @@ def get_invoice(invoice_id: str):
 
 @app.get("/payments", tags=["External"])
 def list_payments():
-    """Returns all payments from the external accounting system."""
     return {"data": PAYMENTS, "total": len(PAYMENTS)}
 
 
 @app.get("/payments/{payment_id}", tags=["External"])
 def get_payment(payment_id: str):
-    """Returns a single payment by ID."""
     for p in PAYMENTS:
         if p["id"] == payment_id:
             return {"data": p}
