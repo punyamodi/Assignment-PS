@@ -82,16 +82,6 @@ This avoids repeated external calls and keeps insight responses stable and fast.
 
 ## Screenshots
 
-Add screenshots under `docs/screenshots/` using these names:
-
-- `api-docs.png`
-- `sync-response.png`
-- `insights-response.png`
-
-Example markdown after adding files:
-
-```md
 ![API Docs](docs/screenshots/api-docs.png)
 ![Sync Response](docs/screenshots/sync-response.png)
 ![Insights Response](docs/screenshots/insights-response.png)
-```
